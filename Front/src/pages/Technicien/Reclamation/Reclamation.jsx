@@ -1,0 +1,143 @@
+import { useState } from 'react';
+import axios from 'axios';
+
+const Reclamation = () => {
+    const [formData, setFormData] = useState({
+        name: '',
+        email: '',
+        subject: '',
+        message: '',
+        recipient: 'Admin', // Valeur par défaut
+    });
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [notification, setNotification] = useState(null);
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData({ ...formData, [name]: value });
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setIsSubmitting(true);
+        
+        try {
+            // Appel à votre API backend
+            const response = await axios.post('http://localhost:5000/api/reclamations', formData);
+            
+            // Afficher notification de succès
+            setNotification({
+                type: 'success',
+                message: 'Réclamation soumise avec succès'
+            });
+            
+            // Réinitialiser le formulaire
+            setFormData({
+                name: '',
+                email: '',
+                subject: '',
+                message: '',
+                recipient: 'Admin'
+            });
+            
+        } catch (error) {
+            // Afficher notification d'erreur
+            setNotification({
+                type: 'error',
+                message: error.response?.data?.message || 'Une erreur est survenue lors de la soumission'
+            });
+        } finally {
+            setIsSubmitting(false);
+            
+            // Faire disparaître la notification après 5 secondes
+            setTimeout(() => {
+                setNotification(null);
+            }, 5000);
+        }
+    };
+
+    return (
+        <div className="max-w-4xl mx-auto p-8 bg-white rounded-lg shadow-xl">
+            <h1 className="text-3xl font-bold text-gray-800 mb-6 text-center">Soumettre une réclamation</h1>
+            
+            {notification && (
+                <div className={`p-4 mb-6 rounded-md ${notification.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                    {notification.message}
+                </div>
+            )}
+            
+            <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                    <label className="block text-sm font-semibold text-gray-700" htmlFor="name">Nom</label>
+                    <input
+                        type="text"
+                        name="name"
+                        id="name"
+                        value={formData.name}
+                        onChange={handleChange}
+                        required
+                        className="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-600 transition duration-200 ease-in-out"
+                    />
+                </div>
+                <div>
+                    <label className="block text-sm font-semibold text-gray-700" htmlFor="email">Email</label>
+                    <input
+                        type="email"
+                        name="email"
+                        id="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        required
+                        className="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-600 transition duration-200 ease-in-out"
+                    />
+                </div>
+                <div>
+                    <label className="block text-sm font-semibold text-gray-700" htmlFor="subject">Sujet</label>
+                    <input
+                        type="text"
+                        name="subject"
+                        id="subject"
+                        value={formData.subject}
+                        onChange={handleChange}
+                        required
+                        className="mt-1 block w-full mb-5 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-600 transition duration-200 ease-in-out"
+                    />
+                    <label className="block text-sm font-semibold text-gray-700" htmlFor="recipient">Destinataire</label>
+                    <input
+                        type="text"
+                        name="recipient"
+                        id="recipient"
+                        value={formData.recipient}
+                        onChange={handleChange}
+                        required
+                        readOnly
+                        className="mt-1 block w-full mb-5 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-600 transition duration-200 ease-in-out"
+                    />
+                </div>
+                <div>
+                    <label className="block text-sm font-semibold text-gray-700" htmlFor="message">Message</label>
+                    <textarea
+                        name="message"
+                        id="message"
+                        value={formData.message}
+                        onChange={handleChange}
+                        required
+                        className="mt-1 block w-full border border-gray-300 rounded-md p-4 h-32 focus:outline-none focus:ring-2 focus:ring-blue-600 transition duration-200 ease-in-out"
+                    />
+                </div>
+                
+                <div className="col-span-1 sm:col-span-2">
+                    <button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className={`w-1/5 ${isSubmitting ? 'bg-gray-500' : 'bg-gray-900 hover:bg-blue-700'} text-white font-semibold py-2.5 rounded-md shadow-md transition duration-200 ease-in-out`}
+                    >
+                        {isSubmitting ? 'Envoi...' : 'Soumettre'}
+                    </button>
+                </div>
+            </form>
+        </div>
+    );
+};
+
+export default Reclamation;

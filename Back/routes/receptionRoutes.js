@@ -1,0 +1,1 @@
+router.get('/vehicle/:vehicleId', receptionController.getVehicleReceptionMecanicien); 
